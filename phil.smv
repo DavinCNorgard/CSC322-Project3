@@ -9,7 +9,7 @@ MODULE main
   
 VAR
   chopsticks : array 0..4 of {nobody,0,1,2,3,4}; -- who holds the chopstick.
-  priority : 0..4; -- global priority variable
+  priority : {0,1,2,3,4}; -- global priority variable
   --
   -- Philosopher i has chopstick i on left and chopstick
   -- (i + 1) mod 5 on right
@@ -32,7 +32,7 @@ ASSIGN
   init(priority) := 0; -- initialize global priority
 
   -- Rotate priority cyclically
-  next(priority) := (priority + 1) mod 5;
+  -- next(priority) := (priority + 1) mod 5;
     
 MODULE philosopher(i,left,right, current_priority)
   
@@ -47,8 +47,8 @@ DEFINE
   gotright := (right=i);
   leftfree := (left=nobody);
   rightfree := (right=nobody);
-  left_neighbor_priority := (i - 1) mod 5;
-  right_neighbor_priority := (i + 1) mod 5;
+  -- left_neighbor_priority := (i - 1) mod 5;
+  -- right_neighbor_priority := (i + 1) mod 5;
   higher_priority := (current_priority = i);
 
     
@@ -82,13 +82,27 @@ ASSIGN
     TRUE : state;
   esac;
 
+  next(current_priority) := case
+
+      (state=thinking) & higher_priority & (i=0): 1;
+      (state=thinking) & higher_priority & (i=1): 2;
+      (state=thinking) & higher_priority & (i=2): 3;
+      (state=thinking) & higher_priority & (i=3): 4;
+      (state=thinking) & higher_priority & (i=4): 0;
+
+      (state=done) & higher_priority & leftfree & rightfree & (i=0) : 1 ;
+      (state=done) & higher_priority & leftfree & rightfree & (i=1) : 2 ;
+      (state=done) & higher_priority & leftfree & rightfree & (i=2) : 3 ;
+      (state=done) & higher_priority & leftfree & rightfree & (i=3) : 4 ;
+      (state=done) & higher_priority & leftfree & rightfree & (i=4) : 0 ;
+      TRUE : current_priority;
+    esac;
+
 
 -- add fairness constraints here
-
-FAIRNESS
+FAIRNESS !(state = eating) 
+FAIRNESS running;
   -- philosophers should eat an equal number of times
-  running;
-
 
 -- add specifications here 
 
@@ -99,10 +113,6 @@ CTLSPEC
   -- no starvation
   AG ((state = hungry) -> AF (state = eating));
 
-CTLSPEC
-  -- a philosopher must have both chopsticks to eat
-  AG ((state = eating) -> (gotleft & gotright))
-
 -- Safety:
 
 CTLSPEC
@@ -110,7 +120,9 @@ CTLSPEC
   -- if all states are hungry and they are all holding the left chopstick
   AG !((state = hungry) & gotleft & !gotright) -> AF ((state = hungry) & gotleft & !gotright)
   
-
+CTLSPEC
+  -- a philosopher must have both chopsticks to eat
+  AG ((state = eating) -> (gotleft & gotright))
 
 
 
