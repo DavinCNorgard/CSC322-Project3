@@ -30,11 +30,8 @@ ASSIGN
   init(chopsticks[3]) := nobody;
   init(chopsticks[4]) := nobody;
   init(priority) := 0; -- initialize global priority
-
-  -- Rotate priority cyclically
-  -- next(priority) := (priority + 1) mod 5;
     
-MODULE philosopher(i,left,right, current_priority)
+MODULE philosopher(i,left,right, turn)
   
 VAR
   state : {thinking, hungry, eating, done};
@@ -47,9 +44,7 @@ DEFINE
   gotright := (right=i);
   leftfree := (left=nobody);
   rightfree := (right=nobody);
-  -- left_neighbor_priority := (i - 1) mod 5;
-  -- right_neighbor_priority := (i + 1) mod 5;
-  higher_priority := (current_priority = i);
+  my_turn := (turn = i);
 
     
 ASSIGN
@@ -60,7 +55,7 @@ ASSIGN
     --
     -- if hungry and left chopstick if free, take it
     --
-    (state=hungry) & leftfree & higher_priority: i;
+    (state=hungry) & leftfree & my_turn: i;
     TRUE : left;
   esac;
 
@@ -69,7 +64,7 @@ ASSIGN
     --
     -- if hungry and have left chopstick and right is free, take it
     --
-    (state=hungry) & gotleft & rightfree & higher_priority: i; 
+    (state=hungry) & gotleft & rightfree & my_turn: i; 
     TRUE : right;
   esac;
 
@@ -82,20 +77,20 @@ ASSIGN
     TRUE : state;
   esac;
 
-  next(current_priority) := case
+  next(turn) := case
 
-      (state=thinking) & higher_priority & (i=0): 1;
-      (state=thinking) & higher_priority & (i=1): 2;
-      (state=thinking) & higher_priority & (i=2): 3;
-      (state=thinking) & higher_priority & (i=3): 4;
-      (state=thinking) & higher_priority & (i=4): 0;
+      (state=thinking) & my_turn & (i=0): 1;
+      (state=thinking) & my_turn & (i=1): 2;
+      (state=thinking) & my_turn & (i=2): 3;
+      (state=thinking) & my_turn & (i=3): 4;
+      (state=thinking) & my_turn & (i=4): 0;
 
-      (state=done) & higher_priority & leftfree & rightfree & (i=0) : 1 ;
-      (state=done) & higher_priority & leftfree & rightfree & (i=1) : 2 ;
-      (state=done) & higher_priority & leftfree & rightfree & (i=2) : 3 ;
-      (state=done) & higher_priority & leftfree & rightfree & (i=3) : 4 ;
-      (state=done) & higher_priority & leftfree & rightfree & (i=4) : 0 ;
-      TRUE : current_priority;
+      (state=done) & my_turn & leftfree & rightfree & (i=0) : 1 ;
+      (state=done) & my_turn & leftfree & rightfree & (i=1) : 2 ;
+      (state=done) & my_turn & leftfree & rightfree & (i=2) : 3 ;
+      (state=done) & my_turn & leftfree & rightfree & (i=3) : 4 ;
+      (state=done) & my_turn & leftfree & rightfree & (i=4) : 0 ;
+      TRUE : turn;
     esac;
 
 
@@ -105,13 +100,6 @@ FAIRNESS running;
   -- philosophers should eat an equal number of times
 
 -- add specifications here 
-
--- Liveness:
-
-CTLSPEC
-  -- If a philosopher wants to eat, he will eventually eat
-  -- no starvation
-  AG ((state = hungry) -> AF (state = eating));
 
 -- Safety:
 
@@ -124,6 +112,12 @@ CTLSPEC
   -- a philosopher must have both chopsticks to eat
   AG ((state = eating) -> (gotleft & gotright))
 
+-- Liveness:
+
+CTLSPEC
+  -- If a philosopher wants to eat, he will eventually eat
+  -- no starvation
+  AG ((state = hungry) -> AF (state = eating));
 
 
 
