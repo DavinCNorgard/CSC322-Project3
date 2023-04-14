@@ -123,9 +123,3 @@ CTLSPEC
 CTLSPEC
   -- a philosopher must have both chopsticks to eat
   AG ((state = eating) -> (gotleft & gotright))
-
-
-
-
-
-
