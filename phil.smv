@@ -95,7 +95,7 @@ ASSIGN
       (state=thinking) & my_turn & (i=4): 0;
 
       (state=done)  & leftfree & rightfree & my_turn & (i=0) : 1 ;
-      (state=done)  & leftfree & rightfree  & my_turn & (i=1) : 2 ;
+      (state=done)  & leftfree & rightfree & my_turn & (i=1) : 2 ;
       (state=done)  & leftfree & rightfree & my_turn & (i=2) : 3 ;
       (state=done)  & leftfree & rightfree & my_turn & (i=3) : 4 ;
       (state=done)  & leftfree & rightfree & my_turn & (i=4) : 0 ;
