@@ -9,7 +9,7 @@ MODULE main
   
 VAR
   chopsticks : array 0..4 of {nobody,0,1,2,3,4}; -- who holds the chopstick.
-  priority : {0,1,2,3,4}; -- global priority variable
+  priority : 0..4; -- global priority variable
   --
   -- Philosopher i has chopstick i on left and chopstick
   -- (i + 1) mod 5 on right
@@ -85,11 +85,11 @@ ASSIGN
       (state=thinking) & my_turn & (i=3): 4;
       (state=thinking) & my_turn & (i=4): 0;
 
-      (state=done) & my_turn & leftfree & rightfree & (i=0) : 1 ;
-      (state=done) & my_turn & leftfree & rightfree & (i=1) : 2 ;
-      (state=done) & my_turn & leftfree & rightfree & (i=2) : 3 ;
-      (state=done) & my_turn & leftfree & rightfree & (i=3) : 4 ;
-      (state=done) & my_turn & leftfree & rightfree & (i=4) : 0 ;
+      (state=done)  & leftfree & rightfree & my_turn & (i=0) : 1 ;
+      (state=done)  & leftfree & rightfree  & my_turn & (i=1) : 2 ;
+      (state=done)  & leftfree & rightfree & my_turn & (i=2) : 3 ;
+      (state=done)  & leftfree & rightfree & my_turn & (i=3) : 4 ;
+      (state=done)  & leftfree & rightfree & my_turn & (i=4) : 0 ;
       TRUE : turn;
     esac;
 
